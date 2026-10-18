@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinovski Acestream Hub</title>
+    <meta name="theme-color" content="#07040f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+        :root {
+            --bg-main: #07040f;
+            --bg-card: rgba(20, 12, 44, 0.72);
+            --bg-hover: rgba(40, 24, 84, 0.8);
+            --text-main: #eaf6ff;
+            --text-muted: #8f86b8;
+            --purple: #a855f7;
+            --violet: #7c3aed;
+            --cyan: #22f5e6;
+            --pink: #ff2bd6;
+            --accent: var(--cyan);
+            --success: #22f5a0;
+            --warning: #ffb02e;
+            --danger: #ff3b6b;
+            --border: rgba(168, 85, 247, 0.28);
+            --glow-p: 0 0 14px rgba(168, 85, 247, 0.55);
+            --glow-c: 0 0 14px rgba(34, 245, 230, 0.55);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Rajdhani', system-ui, sans-serif;
+            font-size: 1.05rem;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.45;
+            padding-bottom: 4rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ---------- FONDO ANIMADO ---------- */
+        .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+
+        .bg-aurora {
+            background:
+                radial-gradient(60vw 50vh at 12% 8%, rgba(124, 58, 237, 0.35), transparent 60%),
+                radial-gradient(55vw 55vh at 90% 20%, rgba(34, 245, 230, 0.20), transparent 60%),
+                radial-gradient(50vw 50vh at 50% 105%, rgba(255, 43, 214, 0.22), transparent 60%);
+            animation: aurora 14s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora {
+            0%   { transform: translate3d(0, 0, 0) scale(1); filter: hue-rotate(0deg); }
+            100% { transform: translate3d(-2%, 3%, 0) scale(1.08); filter: hue-rotate(25deg); }
+        }
+
+        .bg-grid {
+            background-image:
+                linear-gradient(rgba(168, 85, 247, 0.13) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 245, 230, 0.10) 1px, transparent 1px);
+            background-size: 52px 52px;
+            -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 78%);
+            mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 78%);
+            animation: gridMove 8s linear infinite;
+        }
+
+        @keyframes gridMove { to { background-position: 0 52px, 52px 0; } }
+
+        .bg-scan {
+            background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+            mix-blend-mode: overlay;
+        }
+
+        .bg-scan::after {
+            content: '';
+            position: absolute; left: 0; right: 0; height: 22vh;
+            background: linear-gradient(to bottom, transparent, rgba(34, 245, 230, 0.07), transparent);
+            animation: scanline 7s linear infinite;
+        }
+
+        @keyframes scanline { from { top: -25vh; } to { top: 110vh; } }
+
+        /* ---------- HEADER ---------- */
+        header {
+            background: linear-gradient(180deg, rgba(10, 5, 24, 0.92), rgba(10, 5, 24, 0.78));
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            position: sticky; top: 0; z-index: 100;
+            padding: 1rem 1.5rem 0.75rem;
+            border-bottom: 1px solid transparent;
+        }
+
+        header::after {
+            content: '';
+            position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+            background: linear-gradient(90deg, var(--violet), var(--cyan), var(--pink), var(--violet));
+            background-size: 300% 100%;
+            animation: borderFlow 6s linear infinite;
+            box-shadow: 0 0 16px rgba(34, 245, 230, 0.6);
+        }
+
+        @keyframes borderFlow { to { background-position: 300% 0; } }
+
+        .header-container {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; flex-wrap: wrap; gap: 1rem;
+            justify-content: space-between; align-items: center;
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem; font-weight: 900; letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .brand .logo-text {
+            background: linear-gradient(90deg, var(--cyan), var(--purple) 50%, var(--pink));
+            background-size: 200% 100%;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: textShift 5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.55));
+            position: relative;
+        }
+
+        @keyframes textShift { to { background-position: 100% 0; } }
+
+        .brand .logo-text::before,
+        .brand .logo-text::after {
+            content: attr(data-text);
+            position: absolute; left: 0; top: 0; width: 100%;
+            -webkit-text-fill-color: initial;
+            background: none; opacity: 0; pointer-events: none;
+        }
+
+        .brand .logo-text::before { color: var(--cyan); animation: glitchA 6s infinite steps(1); }
+        .brand .logo-text::after  { color: var(--pink); animation: glitchB 6s infinite steps(1); }
+
+        @keyframes glitchA {
+            0%, 92%, 100% { opacity: 0; transform: none; }
+            93% { opacity: .8; transform: translate(-3px, 1px); clip-path: inset(10% 0 55% 0); }
+            95% { opacity: .8; transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
+            97% { opacity: 0; }
+        }
+        @keyframes glitchB {
+            0%, 92%, 100% { opacity: 0; transform: none; }
+            94% { opacity: .8; transform: translate(3px, -1px); clip-path: inset(40% 0 30% 0); }
+            96% { opacity: .8; transform: translate(-2px, 1px); clip-path: inset(5% 0 70% 0); }
+            98% { opacity: 0; }
+        }
+
+        .status-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em;
+            padding: 0.25rem 0.75rem; border-radius: 4px;
+            background: rgba(34, 245, 230, 0.07);
+            border: 1px solid rgba(34, 245, 230, 0.35);
+            color: var(--cyan);
+            text-transform: none;
+            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+            padding-inline: 1rem;
+        }
+
+        .controls {
+            display: flex; flex-wrap: wrap; gap: 0.75rem;
+            flex: 1; max-width: 640px; justify-content: flex-end;
+        }
+
+        .search-box {
+            flex: 1; min-width: 220px;
+            padding: 0.7rem 1rem 0.7rem 2.4rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2322f5e6' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E") 0.8rem center / 18px no-repeat,
+                rgba(12, 6, 30, 0.8);
+            color: var(--text-main);
+            font-family: inherit; font-size: 1rem; font-weight: 500;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search-box::placeholder { color: #6d6496; }
+
+        .search-box:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 1px var(--cyan), var(--glow-c), inset 0 0 14px rgba(34, 245, 230, 0.08);
+        }
+
+        .filter-toggle {
+            display: flex; align-items: center; gap: 0.55rem;
+            font-size: 0.92rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; user-select: none;
+            background: rgba(12, 6, 30, 0.8);
+            padding: 0.55rem 0.9rem; border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: border-color .2s, color .2s;
+        }
+
+        .filter-toggle:hover { border-color: var(--purple); color: var(--text-main); }
+        .filter-toggle input { accent-color: var(--cyan); width: 16px; height: 16px; }
+
+        /* ---------- CATEGORÍAS ---------- */
+        .category-nav {
+            max-width: 1400px; margin: 0.9rem auto 0;
+            display: flex; gap: 0.55rem;
+            overflow-x: auto; padding: 0.3rem 0.1rem 0.6rem;
+            scrollbar-width: thin; scrollbar-color: var(--violet) transparent;
+        }
+
+        .cat-btn {
+            position: relative;
+            background: rgba(20, 12, 44, 0.7);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.88rem; font-weight: 700; letter-spacing: 0.05em;
+            cursor: pointer; white-space: nowrap;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            transition: color .2s, background .2s, transform .2s, filter .2s;
+        }
+
+        .cat-btn:hover {
+            color: var(--text-main);
+            background: rgba(124, 58, 237, 0.35);
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.8));
+        }
+
+        .cat-btn.active {
+            color: #07040f;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            border-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(34, 245, 230, 0.7));
+        }
+
+        /* ---------- CONTENIDO ---------- */
+        main { max-width: 1400px; margin: 1.8rem auto; padding: 0 1.5rem; }
+
+        .group-section { margin-bottom: 2.8rem; animation: fadeUp .6s ease both; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .group-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-main);
+            margin-bottom: 1.1rem; padding-bottom: 0.65rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .group-title::after {
+            content: '';
+            position: absolute; left: 0; bottom: -1px; height: 2px; width: 90px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            box-shadow: var(--glow-c);
+            animation: titleBar 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleBar { to { width: 220px; } }
+
+        .group-title span:first-child {
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.7);
+        }
+
+        .group-title span:first-child::before {
+            content: '// '; color: var(--cyan); text-shadow: var(--glow-c);
+        }
+
+        .group-count {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.82rem; color: var(--cyan); font-weight: 700; letter-spacing: 0.06em;
+            padding: 0.15rem 0.6rem;
+            border: 1px solid rgba(34, 245, 230, 0.3); border-radius: 3px;
+            background: rgba(34, 245, 230, 0.06);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.1rem;
+        }
+
+        /* ---------- TARJETAS ---------- */
+        .card {
+            --mx: 50%; --my: 50%;
+            position: relative;
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;
+            overflow: hidden;
+            opacity: 0;
+            animation: cardIn .55s cubic-bezier(.2, .8, .2, 1) forwards;
+            animation-delay: calc(var(--i, 0) * 28ms);
+            transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(22px) scale(.96); filter: blur(4px); }
+            to   { opacity: 1; transform: none; filter: none; }
+        }
+
+        /* luz que sigue al ratón */
+        .card::before {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(220px circle at var(--mx) var(--my), rgba(34, 245, 230, 0.16), transparent 65%);
+            opacity: 0; transition: opacity .25s;
+        }
+
+        /* borde de neón animado */
+        .card::after {
+            content: '';
+            position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+            background: conic-gradient(from var(--ang, 0deg), transparent 0 60%, var(--cyan), var(--pink), var(--purple), transparent 95%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0; transition: opacity .3s;
+            animation: spin 4s linear infinite;
+        }
+
+        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        @keyframes spin { to { --ang: 360deg; } }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(34, 245, 230, 0.45);
+            box-shadow: 0 14px 34px -10px rgba(124, 58, 237, 0.6), 0 0 24px -4px rgba(34, 245, 230, 0.35);
+        }
+
+        .card:hover::before, .card:hover::after { opacity: 1; }
+
+        .card.outdated {
+            opacity: .55 !important;
+            border-color: rgba(255, 176, 46, 0.4);
+            border-style: dashed;
+            animation: none;
+        }
+
+        .card.outdated:hover { opacity: .9 !important; }
+
+        .card-header { display: flex; align-items: center; gap: 0.9rem; position: relative; z-index: 1; }
+
+        .logo-wrapper {
+            width: 52px; height: 52px; border-radius: 10px;
+            background: radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.35), #0a0518 70%);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            box-shadow: inset 0 0 12px rgba(168, 85, 247, 0.25);
+            font-size: 1.4rem;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+        .card:hover .logo-wrapper {
+            transform: rotate(-4deg) scale(1.08);
+            box-shadow: inset 0 0 12px rgba(34, 245, 230, 0.35), var(--glow-c);
+        }
+
+        .logo-wrapper img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+
+        .channel-info { flex: 1; min-width: 0; }
+
+        .channel-name {
+            font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-bottom: 0.3rem;
+        }
+
+        .badges { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+        .badge {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+            padding: 0.1rem 0.5rem; border-radius: 3px; text-transform: uppercase;
+        }
+
+        .badge-4k {
+            background: linear-gradient(90deg, var(--pink), var(--purple));
+            color: #fff; box-shadow: 0 0 10px rgba(255, 43, 214, 0.55);
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+        .badge-1080p { background: rgba(34, 245, 230, 0.14); color: var(--cyan); border: 1px solid rgba(34, 245, 230, 0.6); box-shadow: 0 0 8px rgba(34, 245, 230, 0.25); }
+        .badge-720p  { background: rgba(168, 85, 247, 0.14); color: #d2a8ff; border: 1px solid rgba(168, 85, 247, 0.5); }
+        .badge-warn  { background: rgba(255, 176, 46, 0.12); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-source { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); font-weight: 600; border: 1px solid rgba(255,255,255,0.08); }
+
+        @keyframes pulseBadge {
+            0%, 100% { box-shadow: 0 0 6px rgba(255, 43, 214, 0.4); }
+            50%      { box-shadow: 0 0 16px rgba(255, 43, 214, 0.9); }
+        }
+
+        .card-actions {
+            display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.5rem;
+            position: relative; z-index: 1;
+        }
+
+        .btn {
+            position: relative; overflow: hidden;
+            padding: 0.55rem 0.8rem; border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em;
+            text-align: center; text-decoration: none; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+            transition: transform .15s, box-shadow .25s, background .25s, color .25s, border-color .25s;
+        }
+
+        .btn:active { transform: scale(.95); }
+
+        .btn::after {
+            content: '';
+            position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+            transform: skewX(-20deg);
+            transition: left .55s;
+        }
+        .btn:hover::after { left: 130%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--violet), var(--purple));
+            color: #fff;
+            box-shadow: 0 0 14px rgba(124, 58, 237, 0.5);
+        }
+        .btn-primary:hover { box-shadow: 0 0 22px rgba(168, 85, 247, 0.95); transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: rgba(34, 245, 230, 0.08);
+            color: var(--cyan);
+            border: 1px solid rgba(34, 245, 230, 0.5);
+        }
+        .btn-secondary:hover {
+            background: rgba(34, 245, 230, 0.22);
+            box-shadow: 0 0 18px rgba(34, 245, 230, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-copy {
+            background: rgba(10, 5, 24, 0.8);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 0.55rem 0.7rem;
+        }
+        .btn-copy:hover { color: var(--pink); border-color: var(--pink); box-shadow: 0 0 14px rgba(255, 43, 214, 0.5); }
+
+        .empty {
+            text-align: center; color: var(--text-muted);
+            margin-top: 4rem; font-family: 'Orbitron', sans-serif; letter-spacing: .08em;
+            animation: fadeUp .5s ease both;
+        }
+        .empty b { display: block; font-size: 2.4rem; color: var(--pink); text-shadow: 0 0 20px var(--pink); margin-bottom: .6rem; }
+
+        /* ---------- TOAST ---------- */
+        .toast {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            background: rgba(10, 5, 24, 0.92);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 0.8rem 1.3rem; border-radius: 8px;
+            font-weight: 700; letter-spacing: 0.04em; font-size: 0.95rem;
+            box-shadow: var(--glow-c), 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(160%); opacity: 0;
+            transition: transform .35s cubic-bezier(.2, 1.3, .4, 1), opacity .3s;
+            z-index: 200;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        ::selection { background: var(--purple); color: #fff; }
+
+        ::-webkit-scrollbar { width: 10px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #07040f; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--violet), var(--cyan)); border-radius: 8px; }
+
+        @media (max-width: 640px) {
+            .header-container { flex-direction: column; align-items: stretch; }
+            .controls { max-width: 100%; }
+            .brand { font-size: 1.05rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+            .card { opacity: 1; }
+        }
+
+        /* ---------- FAVORITOS Y SELECTOR DE ENLACES ---------- */
+        .card-header { padding-right: 1.8rem; }
+
+        .fav {
+            position: absolute; top: 0.55rem; right: 0.6rem; z-index: 3;
+            width: 32px; height: 32px;
+            background: transparent; border: none; cursor: pointer;
+            font-size: 1.25rem; line-height: 1; color: var(--text-muted);
+            border-radius: 50%;
+            transition: color .2s, transform .2s, text-shadow .2s, background .2s;
+        }
+        .fav:hover { color: var(--pink); background: rgba(255, 43, 214, 0.1); transform: scale(1.15); }
+        .fav.on { color: var(--pink); text-shadow: 0 0 12px var(--pink), 0 0 22px rgba(255, 43, 214, 0.6); animation: favPop .35s ease; }
+        @keyframes favPop { 0% { transform: scale(.6); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; position: relative; z-index: 1; }
+
+        .chip {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+            padding: 0.18rem 0.6rem; border-radius: 4px; cursor: pointer;
+            background: rgba(10, 5, 24, 0.7); color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: color .2s, border-color .2s, background .2s, box-shadow .2s;
+        }
+        .chip:hover { color: var(--text-main); border-color: var(--purple); }
+        .chip.active {
+            color: var(--cyan); border-color: var(--cyan);
+            background: rgba(34, 245, 230, 0.12);
+            box-shadow: 0 0 10px rgba(34, 245, 230, 0.35);
+        }
+        .chip.dead { border-style: dashed; color: var(--warning); border-color: rgba(255, 176, 46, 0.5); }
+        .chip.dead.active { background: rgba(255, 176, 46, 0.12); box-shadow: 0 0 10px rgba(255, 176, 46, 0.3); }
+
+        .empty small { display: block; margin-top: .5rem; font-family: 'Rajdhani', sans-serif; letter-spacing: .03em; font-size: .95rem; }
+
+        .status-badge { white-space: normal; max-width: 100%; }
+
+        /* sin animaciones de entrada al buscar / filtrar / marcar favoritos */
+        .no-anim .card, .no-anim .group-section { animation: none; opacity: 1; }
+        .no-anim .card.outdated { opacity: .55; }
+
+        /* ---------- MÓVIL / TÁCTIL: efectos más ligeros ---------- */
+        @media (hover: none), (max-width: 760px) {
+            .bg-aurora, .bg-grid { animation: none; }
+            .bg-scan { display: none; }
+            .card {
+                backdrop-filter: none; -webkit-backdrop-filter: none;
+                background: rgba(20, 12, 44, 0.92);
+                animation-name: cardInLite; animation-duration: .35s;
+                animation-delay: calc(var(--i, 0) * 16ms);
+            }
+            .card::before, .card::after { display: none; }
+            .card:hover { transform: none; box-shadow: none; }
+            .group-title::after { animation: none; }
+            .brand .logo-text { animation: none; filter: none; }
+            .brand .logo-text::before, .brand .logo-text::after { display: none; }
+            .badge-4k { animation: none; }
+            header::after { animation-duration: 12s; }
+            @keyframes cardInLite { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-layer bg-aurora"></div>
+<div class="bg-layer bg-grid"></div>
+<div class="bg-layer bg-scan"></div>
+
+<header>
+    <div class="header-container">
+        <div class="brand">
+            <span class="logo-text" data-text="📡 Pinovski Acestream">📡 Pinovski Acestream</span>
+            <span id="syncStatus" class="status-badge">Cargando lista...</span>
+        </div>
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-box" placeholder="Buscar canal, deporte o fuente (ej. DAZN, Hypermotion, 1080p)...">
+            <label class="filter-toggle">
+                <input type="checkbox" id="hideOutdated">
+                Ocultar desactualizados
+            </label>
+        </div>
+    </div>
+    <nav id="categoryNav" class="category-nav"></nav>
+</header>
+
+<main id="mainContainer"></main>
+
+<div id="toast" class="toast">ID copiado al portapapeles</div>
+
+<script id="fallback-m3u" type="text/plain">
+#EXTM3U url-tvg="https://raw.githubusercontent.com/davidmuma/EPG_dobleM/refs/heads/master/guiatv.xml,https://epgshare01.online/epgshare01/epg_ripper_NL1.xml.gz,https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv.xml" refresh="3600"
+#EXTVLCOPT:network-caching=1000
+
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/spain/dazn-laliga-es.png" tvg-id="DAZN LaLiga" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=cc108ae39f92c48f6c946763047bd1c9b7b7d889
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=9c588ac92554746c489bc553773d959f6d2dfd8e
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=7f9857c45764ef2c7cdfb619b89db3056a57a51f
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/spain/dazn-laliga-es.png" tvg-id="DAZN LaLiga" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=eb4975702ceadca7ed74f8707e17a9f55569dbb9
+#EXTINF:-1 group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=385abcf801b787eec6ed6624908758bb165c0a55
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga
+http://127.0.0.1:6878/ace/getstream?id=9c75f1d190c518cfe0f236415b8dccc1f676ef3b
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga 2" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=b63fcadc2390455d8a328f6c16b8b0a9adec21a3
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga 2" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=465075c02b7284f564911bd63d1c6f0a8d464be7
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN LaLiga 2" group-title="FÚTBOL | DAZN LALIGA",⚽ DAZN LaLiga 2 · 720p · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=a70a1605f69c8379e04094df96922a42adfbb431
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=0febfb5cac3384f487d55c559bbfc877db2d0357
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=d3b11d6c18ad43df5cd42c1dafb4dd12d8f829e8
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=a64e02a6d914f098cbe1b724ff4f7aef83419a4a
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 1080p · Enlace 4
+http://127.0.0.1:6878/ace/getstream?id=3ce95bc9d6fc63676d828bb2cfc7a1f1854fd259
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 1080p · Enlace 5 · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=b3bdd6ef7f795c4f321a3ce5cf4907338f462929
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga · 720p
+http://127.0.0.1:6878/ace/getstream?id=3ace1463a7cad979c3a4002b245487e9982e9f1a
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga
+http://127.0.0.1:6878/ace/getstream?id=31c19ffb3472c289c5bbbbc174449c8ed0d19e38
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Tc97zSb/liga2.png" tvg-id="M+ LaLiga 2" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga 2
+http://127.0.0.1:6878/ace/getstream?id=b8eb9c9868d487402569bba2d97a8af113d033fe
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga 3" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga 3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=7bd9d072b65919352bda907b472961641e6e2930
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ LaLiga 3" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga 3 · 720p
+http://127.0.0.1:6878/ace/getstream?id=7a8c26ece4d1ce106225a2bc66260f6a5b9be913
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/tv-logo/tv-logos/refs/heads/main/countries/spain/laliga-tv-4-por-movistar-plus-es.png" tvg-id="M+ LaLiga 4" group-title="FÚTBOL | MOVISTAR LALIGA",⚽ M+ LaLiga 4
+http://127.0.0.1:6878/ace/getstream?id=22178d72e0f255dedd7e56f9474fea879289a6f1
+
+#EXTGRP: group-title="FÚTBOL | VARIOS INTERNACIONAL"
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Ziggo Sport 2
+http://127.0.0.1:6878/ace/getstream?id=868a6187d6aeec65ded84bd777814c9f7b7a9027
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 1
+http://127.0.0.1:6878/ace/getstream?id=7ac2d74ef6df9d15012992d7e0e635a95f58c652
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 1 · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=36cad67fed5a739757a9db844a551aa845a8d51b
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 1 HD
+http://127.0.0.1:6878/ace/getstream?id=14407b00d454cb7dc0d70aa26e8bbc554f457f00
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 2
+http://127.0.0.1:6878/ace/getstream?id=d08013df6e437a1fdf1e0c34f573fdf6a40c7fce
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 2 HD
+http://127.0.0.1:6878/ace/getstream?id=54a4a28882d3cae1ca19de5d4b022ebea40351f9
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 3
+http://127.0.0.1:6878/ace/getstream?id=dae7d1251f069516cc0a9c8f15f6639d2a17df1e
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 3 HD
+http://127.0.0.1:6878/ace/getstream?id=b146ee4b6e16c9df58e27bd02ffd6cea840ff212
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 4
+http://127.0.0.1:6878/ace/getstream?id=0f32c0131a2d9444996410801f4e18b04384db98
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 4 HD
+http://127.0.0.1:6878/ace/getstream?id=458a0ddd7d193f6d2750cd14d03a47f47a808e09
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 5
+http://127.0.0.1:6878/ace/getstream?id=4dbe63b44fc4f439f5b634c0d2aa7e0cccad808a
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Eleven DAZN 6
+http://127.0.0.1:6878/ace/getstream?id=50b6d2b5fd59fefb9f4fd2176994d418f2b94a80
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ beIN Sports 1
+http://127.0.0.1:6878/ace/getstream?id=bba1905fcd1c4975aec544047bf8e4cd23ce3fe0
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ beIN Sports 2
+http://127.0.0.1:6878/ace/getstream?id=edb507e38394d614c9ff55805c9d354ae13210bc
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ TNT Sports 2
+http://127.0.0.1:6878/ace/getstream?id=d63d8a57cf471394bfa9f619bbd68b01ae27a801
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",🌍 Polsat Sport Premium 1
+http://127.0.0.1:6878/ace/getstream?id=4ce55db7e578ff52a6e526cf610e477464b8a99f
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",🌍 Polsat Sport Premium 2
+http://127.0.0.1:6878/ace/getstream?id=3147c586346aee00c005d1caa55204d38678c95f
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",🌍 Premier Sports 1
+http://127.0.0.1:6878/ace/getstream?id=75a56863b6fe0407ad4305b4d7ee5643c3923565
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Sky Sports Football
+http://127.0.0.1:6878/ace/getstream?id=8dbe2d515e9131fa311353537736f8c94be9b26d
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ SkySP PL UK · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ec5eabe0144ccfffc337e1d6708e2afb81d0638e
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Setanta Live 1
+http://127.0.0.1:6878/ace/getstream?id=42fe2ce3ef6b92653a74d85b6e98c2ba0abee707
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Fox Sports 2 HD US · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=cba8d369eac629b577750edb90370cd1c5fb03b7
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 1 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=501141c649a2b78c4965cbf3257224181cc55072
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 2 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ab0d54995bdcea2d8f9f588ef631ebbfb3f5a9ab
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 3 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=d0ca51f6145514ee605c2ef5d5a137e2a08c95b8
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 4 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1fb794b1503c5955b75ea0106ee6360b80d78849
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 5 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=428b92f3c71cd3cbf66ef6193808b39d16a52730
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 6 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=14317c55fadc80ef2b7fb42b3d53e8ccb3b52cd8
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 7 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ac839cda9709255c21a98af455731f037e77a9e4
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 8 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=11c5823d4196a90b509f03df1fe78e13cfbbb175
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 9 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=86495fe134ff065d5217497babe6be33f81d37d1
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 10 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=6058a4c0f2569bd81c687aa7dfb48b8a9569fb29
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Magenta Sport 11 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=c21316ad4b7f44eaf6fcfb2c245c46de8b746cc6
+#EXTINF:-1 group-title="FÚTBOL | VARIOS INTERNACIONAL",⚽ Futbol HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=fce354f24fe26ca527e2c38b14eb7b0c81f756dd
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=91b2a1fe85f5bb4a6cf9ef6d01cc65883d986920
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=97df5b7824948972d041d8ca2a4d29c90b641bc9
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=91af434b0bb521189286f8cbbab1aed39d7536fe
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=63e4713e8379f2ebf5e6ed9aa00fbf78ebae7439
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=931fd4c24398a24beb9b6ede856ca34339ff2c22
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 2" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=74ab4e4ec7e2da001f473ca40893b7307b8029c5
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 2" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=bb26037a253866d341778181eff5c8637240d615
+#EXTINF:-1 group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 2 · 1080p · Enlace 3 · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=8156912ae14f6174a19c8a4efcf36a06e847f632
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 2" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 2 · 720p
+http://127.0.0.1:6878/ace/getstream?id=38f7b2044e549df2039ff26cefa6f9a60c854d5e
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 3" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 3 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=320bee0fbdf2a168d47810236985a7c40b4f85c9
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 3" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 3 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=4416843c96b7f7a1bc55c476091a60fff0922bc7
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 3" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 3 · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=85a8e0675bc27ddfd403b8f72953c606d07a8de8
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 3" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 3 · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=cfc371890bfb502737a26de5215e50929c52d0f9
+#EXTINF:-1 group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 3 · 720p · Enlace 2 · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=5b7f54b12e0f96ceba1299f44eac4b0f97403e4e
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 4" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 4 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=91ac4585368992720ec17ffa5b4389368c6dcac1
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 4" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 4 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=64f01629d4a19e70efd9e6778c397282ba087547
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 4" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 4 · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=e9f4493d2d851f4636720f639113e05b4a21a74c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 4" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 4 · 720p
+http://127.0.0.1:6878/ace/getstream?id=5ba9368d80d2f87ac1c6d71df4e7e6e26e6911f2
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 5" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 5 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=3e430d14ef1cf1c147c7b06332081291e05a1431
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 6" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 6 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=373b2ff67490d1ed560a33156b34686923159874
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 6" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 6 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=14bedc2ff054ae16c0fae99cfeb9dcda21ac68a0
+#EXTINF:-1 tvg-logo="https://i.ibb.co/yfV1Q8n/liga.png" tvg-id="M+ Liga de Campeones 7" group-title="FÚTBOL | MOVISTAR LIGA DE CAMPEONES",⚽ M+ Liga de Campeones 7 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=f22268a7d4a279feee02243d93a65cca2825c8e1
+
+#EXTGRP: group-title="FÚTBOL | HYPERMOTION" group-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/LaLiga_Hypermotion_2023_Vertical_Logo.svg/2335px-LaLiga_Hypermotion_2023_Vertical_Logo.svg.png"
+#EXTINF:-1 tvg-id="LaLiga_TV_Hypermotion_1080p_" tvg-logo="https://i.ibb.co/CBdGc9f/hypermotion1.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=4636ed75106cb00e9c70cc2029edf0a4df7ad73f
+#EXTINF:-1 tvg-id="LaLiga TV Hypermotion HD" tvg-logo="https://i.ibb.co/CBdGc9f/hypermotion1.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=e4cbd1a425120b1f44b523a55bd1a98c31cad9fe
+#EXTINF:-1 tvg-id="LaLiga TV Hypermotion HD" tvg-logo="https://i.ibb.co/CBdGc9f/hypermotion1.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=1f75d92098580443857caa95a719103cb83781b0
+#EXTINF:-1 tvg-id="LaLiga TV Hypermotion HD" tvg-logo="https://i.ibb.co/CBdGc9f/hypermotion1.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=2c54a4def58f41fc0d2163450a63f12955b656aa
+#EXTINF:-1 tvg-id="LaLiga_TV_Hypermotion_2_1080p_" tvg-logo="https://i.ibb.co/8K0VrQV/hypermotion2.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=a5b9d834ad92bfb80fe01bf89cc20bd68be199fb
+#EXTINF:-1 tvg-id="LaLiga TV Hypermotion 2" tvg-logo="https://i.ibb.co/8K0VrQV/hypermotion2.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=e63fbcafbfc9bcb7e1cffa1d2eea97cc77f7a198
+#EXTINF:-1 tvg-id="LaLiga_TV_Hypermotion_2_720p_" tvg-logo="https://i.ibb.co/8K0VrQV/hypermotion2.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 2 · 720p
+http://127.0.0.1:6878/ace/getstream?id=3a21e651c0bffe810cfc8537065cb81f5ed68a55
+#EXTINF:-1 tvg-id="LaLiga TV Hypermotion 3" tvg-logo="https://i.ibb.co/826y2Yv/Hypermotion3.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=7efe62956b1f395161e217df1f438c8bf0d4416b
+#EXTINF:-1 group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 3 · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=589dfc625c0ddcd9960e40aaf8235ea58705f784
+#EXTINF:-1 tvg-id="LaLiga_TV_Hypermotion_10_" tvg-logo="https://i.ibb.co/CBdGc9f/hypermotion1.png" group-title="FÚTBOL | HYPERMOTION",⚽ LaLiga TV Hypermotion 10 · ⚠️ Desactualizada
+http://127.0.0.1:6878/ace/getstream?id=11ede21d726b3ac051a366960c6e89eec3c807b6
+
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/d/df/Logo_Primera_RFEF_2021.png/revision/latest?cb=20230620215900&path-prefix=es" tvg-id="RFEF TV" group-title="FÚTBOL | RFEF",⚽ RFEF TV · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=3fbc1b7dc316f19b77e7f7cfc775a0af67adcc7f
+#EXTINF:-1 tvg-logo="https://static.wikia.nocookie.net/logopedia/images/d/df/Logo_Primera_RFEF_2021.png/revision/latest?cb=20230620215900&path-prefix=es" tvg-id="RFEF TV" group-title="FÚTBOL | RFEF",⚽ RFEF TV · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=854ff9c607101791346111cd2366a392c3b8c351
+#EXTINF:-1 group-title="FÚTBOL | RFEF",⚽ RFEF TV · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=7b742628b9f7e82902bdbc1ff92eba1988875cfc
+#EXTINF:-1 group-title="FÚTBOL | RFEF",⚽ RFEF TV · 1080p · Enlace 4
+http://127.0.0.1:6878/ace/getstream?id=177796041773be99b489dd3ce86144f243e7355f
+
+#EXTINF:-1 group-title="DEPORTES | DAZN",🏆 DAZN 1 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=dddff67edfa7061f643ec5ae0be110169850363d
+#EXTINF:-1 group-title="DEPORTES | DAZN",🏆 DAZN 1 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=78124d96a1a4601e7910f50e36a16e35efcfb398
+#EXTINF:-1 group-title="DEPORTES | DAZN",🏆 DAZN 1 · 720p
+http://127.0.0.1:6878/ace/getstream?id=a116ce3ff95c41c60e987e2b1aa247007f707884
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Kz0GXSX/dazn2.png" tvg-id="DAZN 2" group-title="DEPORTES | DAZN",🏆 DAZN 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=d60b8c154828cb990b7bb1570764b215bd979e74
+#EXTINF:-1 group-title="DEPORTES | DAZN",🏆 DAZN 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=01ce89b571b6c89bc19ccaafc913d483ac65c61d
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Kz0GXSX/dazn2.png" tvg-id="DAZN 2" group-title="DEPORTES | DAZN",🏆 DAZN 2 · 720p
+http://127.0.0.1:6878/ace/getstream?id=350bb4d726e2dd4dc4b2b17b59da783fdb07c11b
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Deportes" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=c6a824a81b36f6c3529826477caf2ad94b45776d
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Deportes" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=cf5327fe9c962a29dfff3868f4349ff2b0b4662f
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Deportes" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=6e031aed136bf97d8667fcd5fc49c73256928281
+#EXTINF:-1 group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=7f8b4f57bf234510d3f607492508d68167d4b0ab
+#EXTINF:-1 tvg-logo="https://i.ibb.co/q95fBKV/deportes2.png" tvg-id="Movistar Deportes 2" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=3ee6a0b0e3cacea68107f61bf398f651d8159eed
+#EXTINF:-1 tvg-logo="https://i.ibb.co/q95fBKV/deportes2.png" tvg-id="Movistar Deportes 2" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=8cd8fd69c6755ec452e9e74b33a0d1a653452191
+#EXTINF:-1 group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 2 · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=3774d8feab016ca766b35ea8488e7514ca30e0ee
+#EXTINF:-1 tvg-logo="https://i.ibb.co/q95fBKV/deportes2.png" tvg-id="Movistar Deportes 2" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 2 · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=fd2aea1aa8fcddebfda1644118c6806230a1d539
+#EXTINF:-1 group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 2 · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=6b15368775693c33c49fab02e7900c1976a5da90
+#EXTINF:-1 tvg-logo="https://i.ibb.co/jDg5qWD/deportes3.png" tvg-id="Movistar Deportes 3" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 3 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=f4d9011721fad5098febbe4d7c078a582e176a01
+#EXTINF:-1 tvg-logo="https://i.ibb.co/jDg5qWD/deportes3.png" tvg-id="Movistar Deportes 3" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 3 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=84aed52c5deb78f58595d88250e7a2bd04dfd810
+#EXTINF:-1 tvg-logo="https://i.ibb.co/jDg5qWD/deportes3.png" tvg-id="Movistar Deportes 3" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 3 · 720p
+http://127.0.0.1:6878/ace/getstream?id=e9ce6e62ff97f1da7f10fd449a3c8e8ee90b253d
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Deportes 4" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 4 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=7bede102385c65a545db531af476ef18c31f6258
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Deportes 5" group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 5 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=15ec214bb10925dadd16a1716bb2042af6008a93
+#EXTINF:-1 group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 6 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=765f6a743bcfde948418aaf0de6e66de6a9fbaa6
+#EXTINF:-1 group-title="DEPORTES | MOVISTAR",🏆 M+ Deportes 7 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=2d549bbcd898b09c4b736e6e3e83e8e8c19fcbda
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=6b60251bc893c4e79fdfa37a1f5f6212e73ea6f9
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=26159ba451167e962f4f9236ab4c7626f7eb4e49
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos · 720p
+http://127.0.0.1:6878/ace/getstream?id=7a053fc56fc93f42ec656382408e647055110e3e
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos 2 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=0cd11c1f51b84ebe9954496b3ef9b6aeccf7307c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos 2 · 720p
+http://127.0.0.1:6878/ace/getstream?id=c8c172886e466fbe443433f8e95d201e34edd879
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos 3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=b46a524780cf0ac5e533491fe79389d6198acf2c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/gWMRpFB/vamos.png" tvg-id="Movistar Vamos" group-title="DEPORTES | MOVISTAR",🏆 M+ Vamos 3 · 720p
+http://127.0.0.1:6878/ace/getstream?id=837883625d40e1eb5566eefaf74811046491f53a
+
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 DAZN Baloncesto · 1080p
+http://127.0.0.1:6878/ace/getstream?id=6fbd92735502bdebbf1ea58f4298e49759c0cf07
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 DAZN Baloncesto · 720p
+http://127.0.0.1:6878/ace/getstream?id=4005aabe21ba9c6d748845db91e4f48d99f58639
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 DAZN Baloncesto 2 · 720p
+http://127.0.0.1:6878/ace/getstream?id=fc912a111ea5a88e02b858b5014d2358b11c84ac
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Baloncesto" group-title="DEPORTES | BALONCESTO",🏀 M+ Baloncesto · 1080p
+http://127.0.0.1:6878/ace/getstream?id=34b91125bd752462f1eca2d8d52f5f40fa761aa0
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Baloncesto" group-title="DEPORTES | BALONCESTO",🏀 M+ Baloncesto 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=c8c33b2673efe7f386790c5966643820578f3535
+#EXTINF:-1 tvg-logo="https://i.ibb.co/CV4CLjz/deportes.png" tvg-id="Movistar Baloncesto" group-title="DEPORTES | BALONCESTO",🏀 M+ Baloncesto 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=88113ee23295b8930ae328a88a8c1b861b8f21f1
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 M+ Baloncesto 3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=7b0193004089d4d29821a5cdf17f407d0d192314
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/ESPN.png" tvg-id="ESPN" group-title="DEPORTES | BALONCESTO",🏀 NBA ESPN · 720p
+http://127.0.0.1:6878/ace/getstream?id=bf3773e7f5e53c11347c70c18bd085322efbc90f
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 NBA League Pass · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=cd724cf4db6c687dfcdc580ee481cb374ae6bf58
+#EXTINF:-1 group-title="DEPORTES | BALONCESTO",🏀 NBA League Pass · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=d35611fb35a812b81f9f5832f01bf39a2d3176d0
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Vp04N3pT/golf.png" tvg-id="Movistar Golf" group-title="DEPORTES | GOLF",⛳ M+ Golf · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=9bb2a7dc6c6a296609df8cc50e742a78194f7530
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Vp04N3pT/golf.png" tvg-id="Movistar Golf" group-title="DEPORTES | GOLF",⛳ M+ Golf · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=8121478d3d3e563ad6b98018bc1c0aeb2f6166eb
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Vp04N3pT/golf.png" tvg-id="Movistar Golf" group-title="DEPORTES | GOLF",⛳ M+ Golf · 720p
+http://127.0.0.1:6878/ace/getstream?id=f60535a458b3c114283e2f433379144345beddd6
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Vp04N3pT/golf.png" tvg-id="Movistar Golf" group-title="DEPORTES | GOLF",⛳ M+ Golf 2 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=597cca4ef375529aaca0608b43187d99d26ca714
+#EXTINF:-1 group-title="DEPORTES | GOLF",⛳ M+ Golf 2 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=882074140fca664e119a43294afa2fb4a64917ef
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/r2Yd7xD/euro1.png" tvg-id="Eurosport 1" group-title="DEPORTES | EUROSPORT",🏆 Eurosport 1 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=8522af51ae7189b12effabbb448dcb707195ce1a
+#EXTINF:-1 tvg-logo="https://i.ibb.co/r2Yd7xD/euro1.png" tvg-id="Eurosport 1" group-title="DEPORTES | EUROSPORT",🏆 Eurosport 1 · 720p
+http://127.0.0.1:6878/ace/getstream?id=313213b3b99c0f7437f68c8ea5a7b2b6d7b8a153
+#EXTINF:-1 tvg-logo="https://i.ibb.co/M6h4Qyd/euro2.png" tvg-id="Eurosport 2" group-title="DEPORTES | EUROSPORT",🏆 Eurosport 2 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=3ebcfc00921a4a9307dec97e078f8dc12eee27e7
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/fb9dbDW/tdp.png" tvg-id="Teledeporte" group-title="DEPORTES | TELEDEPORTE",🏆 Teledeporte · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=b35b3eb8e22365bf3469efd6d1f3b82618a6e18a
+#EXTINF:-1 tvg-logo="https://i.ibb.co/fb9dbDW/tdp.png" tvg-id="Teledeporte" group-title="DEPORTES | TELEDEPORTE",🏆 Teledeporte · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=3b50a1dca0977e3761d016edd79314ab797f74f6
+#EXTINF:-1 tvg-logo="https://i.ibb.co/fb9dbDW/tdp.png" tvg-id="Teledeporte" group-title="DEPORTES | TELEDEPORTE",🏆 Teledeporte · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=77cf022557c56cdf8d8115f50e61f846ad72ee05
+#EXTINF:-1 tvg-logo="https://i.ibb.co/fb9dbDW/tdp.png" tvg-id="Teledeporte" group-title="DEPORTES | TELEDEPORTE",🏆 Teledeporte · 720p
+http://127.0.0.1:6878/ace/getstream?id=b0d1489c9f3239349665ad5ab423363f2b02e5ae
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/2Ndmtbp/f1.png" tvg-id="DAZN F1" group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=d719181097d256073844390b3e094fbcb1bceaa4
+#EXTINF:-1 tvg-logo="https://i.ibb.co/2Ndmtbp/f1.png" tvg-id="DAZN F1" group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=0a81ba020d498aca1248e0591d8ffab99eb80bd4
+#EXTINF:-1 group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=02be332ebead0484a5354fa25e97b6833b8b129e
+#EXTINF:-1 group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 1080p · Enlace 4
+http://127.0.0.1:6878/ace/getstream?id=f8b0eae8fda973cf426311541d1668aa592f0a8c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/2Ndmtbp/f1.png" tvg-id="DAZN F1" group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=20086a76248efe8d5230c15d41c69bae8fa6381c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/2Ndmtbp/f1.png" tvg-id="DAZN F1" group-title="MOTOR | FÓRMULA 1",🏁 DAZN F1 · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=f16d68fa5ff64f3894a45062ca28e4e66f142c6a
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=20d4b3586bb822c3618cf8fb665a304869c5e1a5
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=e18b79bce27f6ee8eef9a1fc811bb5f80e4b558c
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 1080p · Enlace 3
+http://127.0.0.1:6878/ace/getstream?id=342ca6975a4884d81f9fec5c4085a47060bd2028
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 1080p · Enlace 4
+http://127.0.0.1:6878/ace/getstream?id=b18dda520e112e48a33d6d0ae558681b9ecfbb4d
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 1080p · Enlace 5
+http://127.0.0.1:6878/ace/getstream?id=c53bdb3be55d12c5188d25085f1bb16911c15cea
+#EXTINF:-1 tvg-logo="https://i.ibb.co/FVzKq1y/dazn1.png" tvg-id="DAZN MotoGP" group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 720p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=129c707eb4854171d178a566f36d90b7f2b5e624
+#EXTINF:-1 group-title="MOTOR | MOTOGP",🏁 DAZN MotoGP · 720p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=ac33342ccf7d40d46174229085461d95000b9137
+
+#EXTINF:-1 tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsYoLr1q3_h6Jo21AgDZhyK62VNC6EdYRbAg&s" tvg-id="Rally TV" group-title="MOTOR | RALLY",🏁 Rally TV · 1080p
+http://127.0.0.1:6878/ace/getstream?id=64eb19dccf5e60f121a4c1f7c69489af6b1c9ca9
+#EXTINF:-1 tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsYoLr1q3_h6Jo21AgDZhyK62VNC6EdYRbAg&s" tvg-id="Rally TV" group-title="MOTOR | RALLY",🏁 Rally TV
+http://127.0.0.1:6878/ace/getstream?id=12404b00d2787995d639ccf71a80da5d39d153f9
+
+#EXTINF:-1 group-title="TELEVISIÓN | TDT",📺 La 1 TVE · 4K
+http://127.0.0.1:6878/ace/getstream?id=da38a21a9509be8c03b0fdb539cb1485843330c3
+#EXTINF:-1 tvg-logo="https://i.ibb.co/Vf2GT70/la1.png" tvg-id="La 1 TVE" group-title="TELEVISIÓN | TDT",📺 La 1 TVE · 1080p
+http://127.0.0.1:6878/ace/getstream?id=9707e15881a29adc795ebdc12862289860edd4ef
+#EXTINF:-1 group-title="TELEVISIÓN | TDT",📺 La 1 TVE · 720p
+http://127.0.0.1:6878/ace/getstream?id=02622fa2fab63847d88dc14fd9fa5c2fc35de8a8
+
+#EXTINF:-1 tvg-logo="https://i.ibb.co/hFYPWbpJ/plus.png" tvg-id="Movistar Plus" group-title="MOVISTAR | GENERAL",📺 Movistar Plus · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=ed74406ccdb3c21941b919db6bffca7f1de015bb
+#EXTINF:-1 tvg-logo="https://i.ibb.co/hFYPWbpJ/plus.png" tvg-id="Movistar Plus" group-title="MOVISTAR | GENERAL",📺 Movistar Plus · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=1ab443f5b4beb6d586f19e8b25b9f9646cf2ab78
+#EXTINF:-1 group-title="MOVISTAR | GENERAL",📺 Movistar Plus · 720p
+http://127.0.0.1:6878/ace/getstream?id=d23497596720b47b096ec0f850d6d26a19d1a336
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Altitude Sports · 1080p
+http://127.0.0.1:6878/ace/getstream?id=3f1697cd02ff08343ace6171ffc2b26bf2b3ce1b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Altitude Sports
+http://127.0.0.1:6878/ace/getstream?id=9ee035de0840c8fbfef82c9d51e8dad4a6251677
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports 1
+http://127.0.0.1:6878/ace/getstream?id=bba1905fcd1c4975aec544047bf8e4cd23ce3fe0
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports 2
+http://127.0.0.1:6878/ace/getstream?id=edb507e38394d614c9ff55805c9d354ae13210bc
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports 3
+http://127.0.0.1:6878/ace/getstream?id=731bd3336ec0986ff9100efe40dbaf1473a22cf8
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports 3 TR · 720p
+http://127.0.0.1:6878/ace/getstream?id=229419659a062e80a088bb049137dafa9c9952fe
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports Haber TR · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=47c1b3a68d03bd190fed521d144ad08fa0f195f3
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports HD 1 TR · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=118416583faa3fb4f03800173429b6b844b43a52
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports HD 2 TR · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=48bee10b883f17c7186d60f1e8022dca0ba41a05
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports HD 3 TR · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ed81c333815247536edfcdb2755147e8c4144d62
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports HD 4 TR · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=7683cd0cbacf55fa8b39c363219ffba1bc47cf9d
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports TR · 720p
+http://127.0.0.1:6878/ace/getstream?id=1e3451ef86d34c96aabece2ac7bcae70ba9ed767
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/beIN%20SPORTS%201.png" group-title="INTERNACIONAL | VARIOS",🌍 beIN Sports Ñ
+http://127.0.0.1:6878/ace/getstream?id=33aa6331066d7796fcab74bed23206f16bded398
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/TNT%20Sports%201.png" tvg-id="UK | TNT Sports 1" group-title="INTERNACIONAL | VARIOS",🌍 BT Sport 1 · Enlace 1 · Fuente: New Loop
+http://127.0.0.1:6878/ace/getstream?id=2605c201c8c9cf6684ee1de562d3b4c7e17ac915
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/TNT%20Sports%201.png" tvg-id="UK | TNT Sports 1" group-title="INTERNACIONAL | VARIOS",🌍 BT Sport 1 · Enlace 2 · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=efc60cfe5e3a349baa02bcc49f6647c21a9c3c5b
+#EXTINF:-1 tvg-logo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3ACanal%252B_Sport_2015.png" group-title="INTERNACIONAL | VARIOS",🌍 Canal+ Sport 1
+http://127.0.0.1:6878/ace/getstream?id=cc7b8c39f70aa342248d02c8ab55bafdb4116ed7
+#EXTINF:-1 tvg-logo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3ACanal%252B_Sport_2015.png" group-title="INTERNACIONAL | VARIOS",🌍 Canal+ Sport 2 · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=6390b1ab967a25777ea2dde1d41b7400cc0601d3
+#EXTINF:-1 tvg-logo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3ACanal%252B_Sport_2015.png" group-title="INTERNACIONAL | VARIOS",🌍 Canal+ Sport 2 · Enlace 2 · Fuente: New Loop
+http://127.0.0.1:6878/ace/getstream?id=068d51b3279fbb8513847881fd50cc42b93ab2fa
+#EXTINF:-1 tvg-logo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3ACanal%252B_Sport_2015.png" group-title="INTERNACIONAL | VARIOS",🌍 Canal+ Sport 3
+http://127.0.0.1:6878/ace/getstream?id=3e87464ed8c42ed14464461ea08860a3040a8944
+#EXTINF:-1 tvg-logo="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3ACanal%252B_Sport_2015.png" group-title="INTERNACIONAL | VARIOS",🌍 Canal+ Sport 4
+http://127.0.0.1:6878/ace/getstream?id=04448c3ca0b7518819491e468adbabc8a2551bd7
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%201.png" tvg-id="PT | DAZN 1" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 1 · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=7ac2d74ef6df9d15012992d7e0e635a95f58c652
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%201.png" tvg-id="PT | DAZN 1" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 1 · Enlace 2 · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=36cad67fed5a739757a9db844a551aa845a8d51b
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%201.png" tvg-id="PT | DAZN 1" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 1 · HD · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=14407b00d454cb7dc0d70aa26e8bbc554f457f00
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%202.png" tvg-id="PT | DAZN 2" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 2
+http://127.0.0.1:6878/ace/getstream?id=d08013df6e437a1fdf1e0c34f573fdf6a40c7fce
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%202.png" tvg-id="PT | DAZN 2" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 2 · HD · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=54a4a28882d3cae1ca19de5d4b022ebea40351f9
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%203.png" tvg-id="PT | DAZN 3" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 3
+http://127.0.0.1:6878/ace/getstream?id=dae7d1251f069516cc0a9c8f15f6639d2a17df1e
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%203.png" tvg-id="PT | DAZN 3" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 3 · HD · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=b146ee4b6e16c9df58e27bd02ffd6cea840ff212
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%201.png" tvg-id="PT | DAZN 4" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 4
+http://127.0.0.1:6878/ace/getstream?id=0f32c0131a2d9444996410801f4e18b04384db98
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%201.png" tvg-id="PT | DAZN 4" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 4 · HD · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=458a0ddd7d193f6d2750cd14d03a47f47a808e09
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%202.png" tvg-id="PT | DAZN 5" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 5
+http://127.0.0.1:6878/ace/getstream?id=4dbe63b44fc4f439f5b634c0d2aa7e0cccad808a
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/DAZN%203.png" tvg-id="PT | DAZN 6" group-title="INTERNACIONAL | VARIOS",🌍 Eleven DAZN 6
+http://127.0.0.1:6878/ace/getstream?id=50b6d2b5fd59fefb9f4fd2176994d418f2b94a80
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN 2 BE · Enlace 1 · Fuente: New Loop
+http://127.0.0.1:6878/ace/getstream?id=afaa0e6c8ae61286f9736af2ba65a849f98ac107
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN 2 BE · Enlace 2 · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=3e0ba6867173f345d482d80c771f1a5dc3b37e63
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN 2 US · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=664eb5fe460b96941aed633959a845b185cd8394
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN 4 BE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=5f9b19c57195cc28ab81e0ec8cad03b55118687a
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN BE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=79f10c6c6168e42bfc606f3f7b9e5f3ca79dedab
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ESPN HD US · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=4b4907de51ec11087d4bed5876f2a0c68264f442
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Esport3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=21bc11d195f5753c396e390c215952d21541d04d
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 1 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=b8cad4710b1c3b2b84a82c1ece40c08517b8f766
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 1 HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1b0bc4d4dcd609d3c092712e721392b199f50a62
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 1 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=22df9a5fae8cae52fec925c2bb44b74f96a4200c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 2 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=57f95543ac41656d473b1a27123fc413388a728c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 3 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=7adbca42657ace1fe228142d351d0896974bbe0c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 4 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1b6b6c0ddc0534236b3bae78f41d2bc27cd11f64
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 5 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=148921c4dda96df445e253d6f26c4d092bf85809
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 6 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=005ac522315699bd93bbf743329eb2f3c347dc3f
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 7 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=b18657f64507cc859cd7edef1aef90feb053e791
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport 360 HD 8 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=8f4f572005ca2557743474087aa622693ba9b5fe
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Eurosport PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=314eb626864faf52e01624361bd6906b5406127f
+#EXTINF:-1 tvg-logo="https://github.com/davidmuma/picons_dobleM/blob/master/icon/FOX%20SPORTS.png?raw=true" group-title="INTERNACIONAL | VARIOS",🌍 Fox Deportes
+http://127.0.0.1:6878/ace/getstream?id=f2f318919c0035b8979153599a90597671eeefc3
+#EXTINF:-1 tvg-logo="https://github.com/davidmuma/picons_dobleM/blob/master/icon/FOX%20SPORTS.png?raw=true" group-title="INTERNACIONAL | VARIOS",🌍 Fox Sports 1 HD US · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=c9c062941fbecb16ce29437f346ea7177d720898
+#EXTINF:-1 tvg-logo="https://github.com/davidmuma/picons_dobleM/blob/master/icon/FOX%20SPORTS.png?raw=true" group-title="INTERNACIONAL | VARIOS",🌍 Fox Sports 2 HD US · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=cba8d369eac629b577750edb90370cd1c5fb03b7
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Konnyy mir HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=96951e5de62a3e7095a1ed8a191817c8935e7017
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 1 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=501141c649a2b78c4965cbf3257224181cc55072
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 2 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ab0d54995bdcea2d8f9f588ef631ebbfb3f5a9ab
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 3 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=d0ca51f6145514ee605c2ef5d5a137e2a08c95b8
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 4 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1fb794b1503c5955b75ea0106ee6360b80d78849
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 5 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=428b92f3c71cd3cbf66ef6193808b39d16a52730
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 6 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=14317c55fadc80ef2b7fb42b3d53e8ccb3b52cd8
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 7 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ac839cda9709255c21a98af455731f037e77a9e4
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 8 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=11c5823d4196a90b509f03df1fe78e13cfbbb175
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 9 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=86495fe134ff065d5217497babe6be33f81d37d1
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 10 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=6058a4c0f2569bd81c687aa7dfb48b8a9569fb29
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Magenta Sport 11 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=c21316ad4b7f44eaf6fcfb2c245c46de8b746cc6
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Match_TV_logo.png/640px-Match_TV_logo.png" group-title="INTERNACIONAL | VARIOS",🌍 Match Premier
+http://127.0.0.1:6878/ace/getstream?id=4b7c5f21b435d79c823e47572655a9c157a3ba12
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Match! Boets RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=822654b2c0db24d1de149cb21fdd44a3b968fbfa
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Match! Igra HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=762e1d11f7d07029f316c6f61b8ef73289c6673c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Match! Planeta RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=106c8656fca0ca91a696110467788d202d7111af
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Match! Strana RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ef9c77bd94783448b8edb552109f5f15b2bd82d1
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Match! TV HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=a203f6b935a8ad8659c4c76c1d9c13afa6368ef2
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 nSport+ PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=5f595b1bbade5e7c915d99f90645f4c30d4ba540
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 ORF SPORT+ HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=0dfa37340ca0300a41f7a78bd3a0f024c3296974
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Polsat Sport Extra PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ef2cf11fc83f4f15a33c9a514a7afd2bce73122f
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Polsat Sport Fight PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=9e7fe279f421b734a8af9e68320955fd16f80b4b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Polsat Sport PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=92b6ba09dae4bbb8a67a405125d08ca8d15380ee
+#EXTINF:-1 tvg-logo="https://github.com/davidmuma/picons_dobleM/blob/master/icon/FOX%20SPORTS.png?raw=true" group-title="INTERNACIONAL | VARIOS",🌍 Polsat Sport Premium 1
+http://127.0.0.1:6878/ace/getstream?id=4ce55db7e578ff52a6e526cf610e477464b8a99f
+#EXTINF:-1 tvg-logo="https://github.com/davidmuma/picons_dobleM/blob/master/icon/FOX%20SPORTS.png?raw=true" group-title="INTERNACIONAL | VARIOS",🌍 Polsat Sport Premium 2
+http://127.0.0.1:6878/ace/getstream?id=3147c586346aee00c005d1caa55204d38678c95f
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Premier Sports 1
+http://127.0.0.1:6878/ace/getstream?id=75a56863b6fe0407ad4305b4d7ee5643c3923565
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Premier Sports 2
+http://127.0.0.1:6878/ace/getstream?id=4903ca695edb64bc72ae29eb85a5333ba0139537
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 1 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=a7319ebd54cb1db9a9db1574929ca8d305a323d3
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 2 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=e360a96fb4bbe1cb8a7862a6514c4c284eeec466
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 3 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=8b3c5f9ec938c3d3950bc4c989428d266bd4bd5b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 4 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=784da1ced871f6d3f6bf25f29664bfd39f6130a6
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 5 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=81284e9a279ee23cbc4a7400bd9531f127d20fe5
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 6 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=c065ab169f75ced1d34fbcab6b84a5fa4ca73e30
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 7 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=eec3f8107e008cec3679f76e078deeefd1348a3e
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 8 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ce4ae0c3491acd4272340029139ba25642e2516b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 9 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=a435581e6cba56972e48cf4519d1b2af735eec2f
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 RTL+ Sport Event 10 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=e6cce13cb4005ec3c7d77db47865385927a7ab7e
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Russkiy Ekstrim RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ed63659df12baa6febbe70f4125b6527aa1ae413
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Setanta Live 1
+http://127.0.0.1:6878/ace/getstream?id=42fe2ce3ef6b92653a74d85b6e98c2ba0abee707
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Setanta Live 2
+http://127.0.0.1:6878/ace/getstream?id=f6d68cfa8694f814983f2a5757f4e0c4964b880c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sky Sport 1 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=7c12288663069a12aff58f3f62e8ea47ab78c65d
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sky Sport 2 HD DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=fc9f1f580da8f641a5991d44b399982a3a069f69
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sky Sport News DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=07cab7f4a1a4ecc0ed35bea52346f1b79b1016a8
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sky Sports Arena · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=d317a003e8047da2c36a2a2bb2289578c9a3b79c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sky Sports Cricket · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=6d95e4b0893e155cc674b84e0763150c445d3ddd
+#EXTINF:-1 tvg-logo="https://tvprofil.com/img/kanali-logo/Sky_Sports_Main_Event_GB_logo.png?1734014539" tvg-id="UK | Sky Sport Main Event" group-title="INTERNACIONAL | VARIOS",🌍 Sky Sports Main Event
+http://127.0.0.1:6878/ace/getstream?id=eab7aeef0218ce8b0752e596e4792b69eda4df5e
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 SPORT1 DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1950633a3723cb52b17c764125decc04445bd5ff
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 SPORT1+ DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=e61b6538df35e5016635dfa2b3073f5b82ee4c2b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport Digital DE · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=5e94200ae8b1d95cb559fb150e5993d92e15d4e7
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport Klub PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=35575a31d76f6c5f5e9e6364dacfdeca3b85f2ee
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 1 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=e24b30556ad82c782bbfa003b384b85ecea8f647
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 3 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=13d84366dcb9607c15cd9a78b5a3921046ac65b6
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 3 · 720p
+http://127.0.0.1:6878/ace/getstream?id=ec2cbc782281624753f20fb0f9a6797651ddfc6c
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 4 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=8d43ca967d4a170f7f2d3e006742cca8aa364f07
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 5 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=54819e202ffd44b098f401df0b399f2079152edb
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV 7 · 1080p
+http://127.0.0.1:6878/ace/getstream?id=e6b9ccd80ee0027e887d0a27b07e8f032de25b27
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sport TV+ · 1080p
+http://127.0.0.1:6878/ace/getstream?id=620df183a3d9647079aeee52dcb6dfd8c44eb447
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Sportivnyy RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=8410d89a5767b250cd752381672aeb5fbe2240d3
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Start RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=4b129146077c1e357e4ab341448b9fb629f939dc
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/TNT%20Sports%201.png" tvg-id="UK | TNT Sports 1" group-title="INTERNACIONAL | VARIOS",🌍 TNT Sports 1
+http://127.0.0.1:6878/ace/getstream?id=fc5089d8e1519872fdf951779ccbca913acc9bce
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/TNT%20Sports%201.png" tvg-id="UK | TNT Sports 2" group-title="INTERNACIONAL | VARIOS",🌍 TNT Sports 2
+http://127.0.0.1:6878/ace/getstream?id=d63d8a57cf471394bfa9f619bbd68b01ae27a801
+#EXTINF:-1 tvg-logo="https://raw.githubusercontent.com/davidmuma/picons_dobleM/master/icon/TNT%20Sports%201.png" tvg-id="UK | TNT Sports 3" group-title="INTERNACIONAL | VARIOS",🌍 TNT Sports 3
+http://127.0.0.1:6878/ace/getstream?id=5f966c123759de46dff29c379266b7a403452033
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Tochka otryva RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=ee5cd7316e917f156bf8d176a11da98fe403b0b2
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 TVP Sport HD PL · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=d6f0a6377c31f68b1c1c071e0a8f9f105a455867
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 VIASAT SPORT HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=dec96c86080c26ddf667ea90adfb513a40007a0b
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ziggo_Sport_logo.svg/1200px-Ziggo_Sport_logo.svg.png" tvg-id="Ziggo.Sport.2.nl" group-title="INTERNACIONAL | VARIOS",🌍 Ziggo Sport 2
+http://127.0.0.1:6878/ace/getstream?id=868a6187d6aeec65ded84bd777814c9f7b7a9027
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ziggo_Sport_logo.svg/1200px-Ziggo_Sport_logo.svg.png" tvg-id="Ziggo.Sport.6.nl" group-title="INTERNACIONAL | VARIOS",🌍 Ziggo Sport 6
+http://127.0.0.1:6878/ace/getstream?id=9231f38e71a85ad24b4c11a5e360992e30c916ed
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ziggo_Sport_logo.svg/1200px-Ziggo_Sport_logo.svg.png" group-title="INTERNACIONAL | VARIOS",🌍 Ziggo Sport ES · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=fcd7621df513f600652b4813d5d8fd1daed60058
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🎾 Sky Sport Tennis · 1080p
+http://127.0.0.1:6878/ace/getstream?id=f31d1f85570b58be8d5ab6f4f2d0f3f9c815c35f
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🎾 Tennis Channel · 1080p · Enlace 1
+http://127.0.0.1:6878/ace/getstream?id=a4cbadd19442b800727be713270fa9c917cc8582
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🎾 Tennis Channel · 1080p · Enlace 2
+http://127.0.0.1:6878/ace/getstream?id=43c549e5781f5a923b76f8f29cde122b5be164eb
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🏒 KHL HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=dcda9de85f7d662c5c3c2efd74eca0fb5c6aab3b
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🏒 KHL TV RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=aa6c193b9de1e6b6277e3075299fdeea925e2dc0
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🏒 Khokkeynyy HD RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=99f0646986e9266836dd79047dedecb04e243857
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🏀 Mir Basketbola RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=c4acde347445b0a07a9e8695b4254bee2b2df570
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🥊 Boks TV RU · Fuente: Sport TV
+http://127.0.0.1:6878/ace/getstream?id=1acaf203502983cd2993c6835bf0cbde8d016c3d
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🥊 Paramount+ UFC
+http://127.0.0.1:6878/ace/getstream?id=a895ab5bcc8beba2d2aa6d5aa332927f005baa65
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🥊 UFC FIGHT PASS · 1080p
+http://127.0.0.1:6878/ace/getstream?id=30076dd69653452e6be4a65b125bc41006686f19
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🥊 UFC FIGHT PASS
+http://127.0.0.1:6878/ace/getstream?id=138f0b038420a425d376cb5c85d3d61570466b20
+
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 Film+ · HD · Fuente: New Loop
+http://127.0.0.1:6878/ace/getstream?id=ec7aeef5723f654ee705a192bdcf4eff2fc7c311
+#EXTINF:-1 group-title="INTERNACIONAL | VARIOS",🌍 noa4 Hamburg · 1080p · Fuente: New Loop
+http://127.0.0.1:6878/ace/getstream?id=d6914c08d198edcfbac7562e3db75303bd8fde48
+</script>
+
+<script>
+    const REPO = 'Pinovski/Pinovski-acestream';
+    const FILE = 'hashes.m3u';
+    const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${REPO}/main/${FILE}`;
+    const GITHUB_COMMITS_URL = `https://api.github.com/repos/${REPO}/commits?path=${FILE}&per_page=1`;
+
+    // Entradas basura que no queremos ver nunca (se comparan sin el emoji inicial)
+    const HIDDEN_NAMES = /^(luz|off siempre)$/i;
+    const QUALITY_RANK = { '4K': 0, '1080p': 1, 'HD': 2, '720p': 3, '': 4 };
+
+    let channels = [];            // canales ya agrupados (1 canal = varios enlaces)
+    let viewById = new Map();     // canales visibles en el último render
+    let selected = {};            // enlace elegido por canal (id -> índice)
+    let activeCategory = 'TODOS';
+    let statusBase = '';
+    let favs = loadFavs();
+
+    /* ---------- utilidades ---------- */
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } }
+
+    function loadFavs() {
+        try { return new Set(JSON.parse(lsGet('pinovski-favs') || '[]')); } catch (e) { return new Set(); }
+    }
+    function saveFavs() { lsSet('pinovski-favs', JSON.stringify([...favs])); }
+    function favKey(ch) { return ch.links[0].hash; }
+
+    function timeAgo(iso) {
+        const s = (Date.now() - new Date(iso).getTime()) / 1000;
+        if (s < 60) return 'hace un momento';
+        if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
+        if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
+        const d = Math.floor(s / 86400);
+        return d === 1 ? 'hace 1 día' : `hace ${d} días`;
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    /* ---------- carga ---------- */
+    async function loadPlaylist() {
+        const statusEl = document.getElementById('syncStatus');
+        let synced = false;
+        let entries;
+        try {
+            const response = await fetch(GITHUB_RAW_URL + '?t=' + Date.now());
+            if (!response.ok) throw new Error('No se pudo conectar al repo');
+            entries = parseM3U(await response.text());
+            synced = true;
+        } catch (err) {
+            entries = parseM3U(document.getElementById('fallback-m3u').textContent);
+        }
+        channels = buildChannels(entries);
+        statusBase = synced
+            ? `🟢 Sincronizado · ${channels.length} enlaces`
+            : `🟡 Modo local · ${channels.length} enlaces`;
+        statusEl.textContent = statusBase;
+        renderCategories();
+        renderChannels(true);
+        if (synced) showLastUpdate();
+    }
+
+    // "Actualizado hace X" a partir del último commit que tocó la lista
+    async function showLastUpdate() {
+        const statusEl = document.getElementById('syncStatus');
+        try {
+            let iso = null;
+            const cached = JSON.parse(lsGet('pinovski-lastupd') || 'null');
+            if (cached && Date.now() - cached.t < 10 * 60 * 1000) {
+                iso = cached.iso;
+            } else {
+                const r = await fetch(GITHUB_COMMITS_URL);
+                if (!r.ok) return;
+                const j = await r.json();
+                iso = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date;
+                if (!iso) return;
+                lsSet('pinovski-lastupd', JSON.stringify({ t: Date.now(), iso }));
+            }
+            statusEl.textContent = `${statusBase} · actualizado ${timeAgo(iso)}`;
+            statusEl.title = 'Última actualización de la lista: ' + new Date(iso).toLocaleString('es-ES');
+        } catch (e) { /* si falla, se queda el texto base */ }
+    }
+
+    /* ---------- parseo ---------- */
+    function parseM3U(content) {
+        const lines = content.split('\n');
+        const entries = [];
+        let info = null;
+
+        for (const raw of lines) {
+            const line = raw.trim();
+            if (!line) continue;
+
+            if (line.startsWith('#EXTINF:')) {
+                const logoMatch = line.match(/tvg-logo="([^"]*)"/);
+                const groupMatch = line.match(/group-title="([^"]*)"/);
+                const commaIndex = line.lastIndexOf(',');
+                const rawTitle = commaIndex !== -1 ? line.slice(commaIndex + 1).trim() : 'Canal';
+
+                const parts = rawTitle.split('·').map(p => p.trim()).filter(Boolean);
+                const name = parts[0] || 'Canal';
+                let quality = '', source = '', enlace = '';
+                for (const p of parts.slice(1)) {
+                    let m;
+                    if (/^4K$/i.test(p)) quality = '4K';
+                    else if (/^1080p$/i.test(p)) quality = '1080p';
+                    else if (/^720p$/i.test(p)) quality = '720p';
+                    else if (/^HD$/i.test(p)) quality = quality || 'HD';
+                    else if ((m = p.match(/^Enlace\s*(\d+)/i))) enlace = m[1];
+                    else if (/^Fuente:/i.test(p)) source = p.replace(/^Fuente:\s*/i, '');
+                }
+                if (!quality && /\bHD\b/.test(name)) quality = 'HD';
+
+                info = {
+                    name,
+                    rawTitle,
+                    logo: logoMatch ? logoMatch[1] : '',
+                    group: groupMatch ? groupMatch[1] : 'OTROS',
+                    quality,
+                    source,
+                    enlace,
+                    outdated: /Desactualizada|⚠️/.test(rawTitle)
+                };
+            } else if (!line.startsWith('#') && info) {
+                const idMatch = line.match(/id=([a-fA-F0-9]{40})/);
+                entries.push({ ...info, url: line, hash: idMatch ? idMatch[1] : '' });
+                info = null;
+            }
+        }
+        return entries;
+    }
+
+    function makeLabel(l) {
+        let t = l.quality || 'Otro';
+        if (l.enlace) t += ' · ' + l.enlace;
+        return l.outdated ? '⚠️ ' + t : t;
+    }
+
+    // Quita repetidos (mismo hash), oculta basura y deja UNA tarjeta por enlace
+    function buildChannels(entries) {
+        const logoByName = new Map();
+        for (const e of entries) {
+            const nk = e.group + '|' + e.name.toLowerCase();
+            if (e.logo && !e.logo.includes('google.com/url') && !logoByName.has(nk)) logoByName.set(nk, e.logo);
+        }
+
+        const seen = new Set();
+        const order = new Map();
+        const list = [];
+
+        for (const e of entries) {
+            if (!e.hash || seen.has(e.hash)) continue;
+            if (HIDDEN_NAMES.test(e.name.replace(/^[^\p{L}\p{N}]+/u, ''))) continue;
+            seen.add(e.hash);
+
+            const nk = e.group + '|' + e.name.toLowerCase();
+            if (!order.has(nk)) order.set(nk, order.size);
+
+            e.label = makeLabel(e);
+            list.push({
+                id: list.length,
+                name: e.name + (e.enlace ? ' · Enlace ' + e.enlace : ''),
+                group: e.group,
+                logo: logoByName.get(nk) || '',
+                links: [e],
+                _o: order.get(nk),
+                _i: list.length
+            });
+        }
+        return list;
+    }
+
+    /* ---------- render ---------- */
+    function renderCategories() {
+        const nav = document.getElementById('categoryNav');
+        const scroll = nav.scrollLeft;
+        const groups = ['TODOS', 'FAVORITOS', ...new Set(channels.map(c => c.group))];
+
+        nav.innerHTML = groups.map(group => {
+            const label = group === 'FAVORITOS' ? `⭐ FAVORITOS (${favs.size})` : esc(group);
+            return `<button class="cat-btn ${group === activeCategory ? 'active' : ''}" data-group="${esc(group)}">${label}</button>`;
+        }).join('');
+        nav.scrollLeft = scroll;
+    }
+
+    function renderChannels(animate = false) {
+        const container = document.getElementById('mainContainer');
+        container.classList.toggle('no-anim', !animate);
+
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const hideOutdated = document.getElementById('hideOutdated').checked;
+
+        const view = [];
+        for (const ch of channels) {
+            if (activeCategory === 'FAVORITOS') {
+                if (!favs.has(favKey(ch))) continue;
+            } else if (activeCategory !== 'TODOS' && ch.group !== activeCategory) continue;
+
+            const links = hideOutdated ? ch.links.filter(l => !l.outdated) : ch.links;
+            if (!links.length) continue;
+
+            if (query) {
+                const hay = (ch.name + ' ' + ch.group + ' ' + links.map(l => l.rawTitle + ' ' + l.hash).join(' ')).toLowerCase();
+                if (!hay.includes(query)) continue;
+            }
+            view.push({ ...ch, links, allOutdated: links.every(l => l.outdated) });
+        }
+
+        viewById = new Map(view.map(v => [v.id, v]));
+
+        if (!view.length) {
+            container.innerHTML = activeCategory === 'FAVORITOS' && !query
+                ? `<div class="empty"><b>☆</b>Aún no tienes favoritos<br><small>Pulsa la estrella de un canal para guardarlo aquí</small></div>`
+                : `<div class="empty"><b>404</b>No se han encontrado canales con ese filtro</div>`;
+            return;
+        }
+
+        const grouped = new Map();
+        for (const v of view) {
+            const g = activeCategory === 'FAVORITOS' ? '⭐ FAVORITOS' : v.group;
+            if (!grouped.has(g)) grouped.set(g, []);
+            grouped.get(g).push(v);
+        }
+
+        container.innerHTML = [...grouped.entries()].map(([groupName, items]) => {
+            // desactualizados al final; el resto, en el orden de la lista (mejor calidad primero)
+            items.sort((a, b) => (a.allOutdated - b.allOutdated) || (a._o - b._o)
+                || (QUALITY_RANK[a.links[0].quality] - QUALITY_RANK[b.links[0].quality]) || (a._i - b._i));
+            return `
+            <section class="group-section">
+                <div class="group-title">
+                    <span>${esc(groupName)}</span>
+                    <span class="group-count">${items.length} enlaces</span>
+                </div>
+                <div class="grid">
+                    ${items.map((v, i) => createCardHTML(v, i)).join('')}
+                </div>
+            </section>`;
+        }).join('');
+    }
+
+    function badgesHTML(l) {
+        let q = '';
+        if (l.quality === '4K') q = `<span class="badge badge-4k">4K</span>`;
+        else if (l.quality === '1080p') q = `<span class="badge badge-1080p">1080p</span>`;
+        else if (l.quality === '720p' || l.quality === 'HD') q = `<span class="badge badge-720p">${l.quality}</span>`;
+        const src = l.source ? `<span class="badge badge-source">${esc(l.source)}</span>` : '';
+        const warn = l.outdated ? `<span class="badge badge-warn">⚠️ Desactualizada</span>` : '';
+        return q + src + warn;
+    }
+
+    function createCardHTML(v, i = 0) {
+        const sel = Math.min(selected[v.id] || 0, v.links.length - 1);
+        const l = v.links[sel];
+        const isFav = favs.has(favKey(v));
+        const fallback = esc(Array.from(v.name)[0] || '📺');
+        const logoHTML = v.logo
+            ? `<img src="${esc(v.logo)}" alt="" loading="lazy" data-f="${fallback}" onerror="this.parentElement.textContent=this.dataset.f">`
+            : fallback;
+
+        const chips = v.links.length > 1 ? `
+                <div class="chips" role="group" aria-label="Enlaces disponibles">
+                    ${v.links.map((x, idx) => `<button class="chip ${idx === sel ? 'active' : ''} ${x.outdated ? 'dead' : ''}" data-chip="${idx}" title="${esc(x.rawTitle)}">${esc(x.label)}</button>`).join('')}
+                </div>` : '';
+
+        return `
+            <article class="card ${v.allOutdated ? 'outdated' : ''}" data-id="${v.id}" style="--i:${Math.min(i, 24)}">
+                <button class="fav ${isFav ? 'on' : ''}" data-fav="${v.id}" data-key="${esc(favKey(v))}" title="${isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}" aria-label="Favorito">${isFav ? '★' : '☆'}</button>
+                <div class="card-header">
+                    <div class="logo-wrapper">${logoHTML}</div>
+                    <div class="channel-info">
+                        <div class="channel-name" title="${esc(v.name)}">${esc(v.name)}</div>
+                        <div class="badges">${badgesHTML(l)}</div>
+                    </div>
+                </div>${chips}
+                <div class="card-actions">
+                    <a href="acestream://${l.hash}" class="btn btn-primary btn-play" title="Abrir en Ace Stream">▶ Reproducir</a>
+                    <button class="btn btn-secondary btn-copy-id" data-hash="${l.hash}" title="Copiar ID / Hash">📋 Copiar ID</button>
+                </div>
+            </article>`;
+    }
+
+    // Cambia el enlace elegido de una tarjeta sin repintar todo
+    function selectLink(card, idx) {
+        const v = viewById.get(Number(card.dataset.id));
+        if (!v || !v.links[idx]) return;
+        selected[v.id] = idx;
+        const l = v.links[idx];
+        card.querySelector('.badges').innerHTML = badgesHTML(l);
+        card.querySelector('.btn-play').href = 'acestream://' + l.hash;
+        card.querySelector('.btn-copy-id').dataset.hash = l.hash;
+        card.querySelectorAll('.chip').forEach((c, n) => c.classList.toggle('active', n === idx));
+    }
+
+    function toggleFav(id) {
+        const v = viewById.get(id);
+        if (!v) return;
+        const k = favKey(v);
+        const added = !favs.has(k);
+        added ? favs.add(k) : favs.delete(k);
+        saveFavs();
+
+        document.querySelectorAll('.fav').forEach(b => {
+            if (b.dataset.key !== k) return;
+            b.classList.toggle('on', added);
+            b.textContent = added ? '★' : '☆';
+            b.title = added ? 'Quitar de favoritos' : 'Añadir a favoritos';
+        });
+        renderCategories();
+        showToast(added ? '⭐ Añadido a favoritos' : 'Quitado de favoritos');
+        if (activeCategory === 'FAVORITOS') renderChannels(false);
+    }
+
+    function copyText(text) {
+        const ok = () => showToast(`Hash copiado: ${text.slice(0, 10)}...`);
+        const fallback = () => {
+            const t = document.createElement('textarea');
+            t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+            document.body.appendChild(t); t.select();
+            try { document.execCommand('copy'); ok(); } catch (e) { showToast('No se pudo copiar'); }
+            t.remove();
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok, fallback);
+        } else {
+            fallback();
+        }
+    }
+
+    /* ---------- eventos ---------- */
+    document.getElementById('categoryNav').addEventListener('click', e => {
+        const btn = e.target.closest('.cat-btn');
+        if (!btn) return;
+        activeCategory = btn.dataset.group;
+        renderCategories();
+        renderChannels(true);
+    });
+
+    document.getElementById('mainContainer').addEventListener('click', e => {
+        const chip = e.target.closest('.chip');
+        if (chip) { selectLink(chip.closest('.card'), Number(chip.dataset.chip)); return; }
+
+        const fav = e.target.closest('.fav');
+        if (fav) { toggleFav(Number(fav.dataset.fav)); return; }
+
+        const copy = e.target.closest('.btn-copy-id');
+        if (copy) copyText(copy.dataset.hash);
+    });
+
+    // luz que sigue al ratón
+    document.getElementById('mainContainer').addEventListener('pointermove', e => {
+        const card = e.target.closest('.card');
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+
+    document.getElementById('searchInput').addEventListener('input', () => renderChannels(false));
+    document.getElementById('hideOutdated').addEventListener('change', () => renderChannels(false));
+
+    loadPlaylist();
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    }
+</script>
+</body>
+</html>

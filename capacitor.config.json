@@ -1,0 +1,10 @@
+{
+  "appId": "com.pinovski.acestream",
+  "appName": "Pinovski Acestream",
+  "webDir": "www",
+  "backgroundColor": "#07040f",
+  "android": {
+    "backgroundColor": "#07040f",
+    "adjustMarginsForEdgeToEdge": "force"
+  }
+}

@@ -1,0 +1,22 @@
+PINOVSKI ACESTREAM - APP ANDROID
+=================================
+
+Este proyecto se compila SOLO en GitHub (no necesitas Android Studio).
+
+1) Crea un repositorio nuevo en GitHub (por ejemplo "pinovski-acestream-app").
+2) Sube TODO el contenido de esta carpeta al repositorio:
+   package.json, capacitor.config.json, .gitignore, carpeta www, carpeta assets
+   y la carpeta oculta ".github" (con workflows/build-apk.yml dentro).
+3) Ve a la pestaña "Actions" del repo y espera a que termine "Build APK"
+   (unos 5-10 minutos). Si no arranca solo: Actions > Build APK > Run workflow.
+4) Descarga el APK:
+   - Desde la pestaña "Releases" (columna derecha del repo): Pinovski-Acestream.apk
+   - o desde Actions > ejecucion > "Artifacts".
+5) Pasalo al movil, abrelo y acepta "Instalar apps desconocidas".
+
+Si la carpeta .github no se subio: en GitHub pulsa "Add file > Create new file",
+escribe como nombre   .github/workflows/build-apk.yml   y pega el contenido del
+archivo build-apk.yml de esta carpeta.
+
+Para actualizar la web de la app: cambia www/index.html en el repo y el APK se
+vuelve a compilar solo. La lista de canales se lee en directo de tu hashes.m3u.
